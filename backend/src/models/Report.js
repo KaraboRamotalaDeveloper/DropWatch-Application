@@ -5,10 +5,10 @@ const reportSchema = new mongoose.Schema(
     name: {
       type: String,
       enum: ["BURST", "LEAKAGE", "WATER-SHEDDING"],
-      defaut: "WATER-SHEDDING",
+      default: "WATER-SHEDDING",
     },
     description: {
-      tyrp: String,
+      type: String,
       required: true,
     },
     photoUrl: {
@@ -43,7 +43,7 @@ const reportSchema = new mongoose.Schema(
     },
     priority: {
       type: String,
-      enum: ["LOW", "MEDIUM", "HIGH", "CRTICAL"],
+      enum: ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
       default: "MEDIUM",
     },
   },
