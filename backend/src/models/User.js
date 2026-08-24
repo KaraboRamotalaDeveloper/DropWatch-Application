@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      required: true,
+      //   required: true,
     },
     email: {
       type: String,
@@ -26,8 +26,8 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.pre("save", async function () {
-  console.log(!this.isModified("password"));
-  console.log(this.isModified("password"));
+  //   console.log(!this.isModified("password"));
+  //   console.log(this.isModified("password"));
   if (!this.isModified("password")) {
     return;
   }
@@ -37,8 +37,8 @@ userSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-userSchema.methods.matchPasswords = async (inputPassword) => {
-  return await bcryptjs.compare(inputPassword, this.password);
+userSchema.methods.matchPasswords = async function (inputPassword) {
+  return await bcrypt.compare(inputPassword, this.password);
 };
 
 const User = new mongoose.model("User", userSchema);
