@@ -10,7 +10,7 @@ const reportLogSchema = new mongoose.Schema(
     },
     action: {
       type: String,
-      enum: ["changeStatus", "changeAssignedTo"],
+      enum: ["REPORTED", "CHANGE_STATUS", "CHANGE_ASSIGNED_TO"],
       default: null,
     },
     prevStatus: {
