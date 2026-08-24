@@ -8,17 +8,19 @@ const register = async (req, res) => {
     return res.status(400).json({ message: "All fields are required" });
   }
 
-  const user = User.findOne({ email });
+  const userExists = await User.findOne({ email });
 
-  if (user) {
+  if (userExists) {
     return res.status(400).json({ message: "User already exits" });
   }
 
-  user = await User.create({
+  const user = await User.create({
     username,
     email,
     password,
   });
+
+  user.save();
 
   if (user) {
     return res.status(201).json({ message: "Successfully registered.", user });
@@ -27,21 +29,23 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const { email, password } = req.body;
-  const decoded = null;
+  try {
+    const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ message: "All fields are required" });
-  }
+    if (!email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
 
-  const user = User.findOne({ email }, { _id, username, email, role });
+    const user = await User.findOne({ email });
 
-  if (user && (await user.matchPassword(password))) {
-    const { token } = res.cookies;
-    if (token) {
-      decoded = decodeToken(token);
-    } else {
-      const token = generateToken(user);
+    if (user && (await user.matchPasswords(password))) {
+      const token = generateToken({
+        userId: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        joined: user.createdAt,
+      });
 
       if (token) {
         res.cookie("token", token, {
@@ -50,17 +54,22 @@ const login = async (req, res) => {
           sameSite: "strict",
           maxAge: 7 * 24 * 60 * 60 * 1000,
         });
-
-        decoded = decodeToken(token);
       }
+      return res.status(200).json({
+        message: "Login Successful",
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      });
+    } else {
+      return res.status(403).json({ message: "Invalid credentials" });
     }
-    if (!decoded) {
-      return res.status(403).json({ message: "Invalid token" });
-    }
-    return res.status(200).json({ message: "Login Successful", user });
+  } catch (err) {
+    return res
+      .status(500)
+      .json(`{ message: "Internal server error" , error:${err}}`);
   }
-
-  return res.status(500).json({ message: "Internal server error" });
 };
 
 const logout = async (req, res) => {
