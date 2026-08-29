@@ -12,19 +12,24 @@ const authenticateRoute = (req, res, next) => {
     return res.status(401).json({ message: "Invalid token" });
   }
 
-  // const token = generateToken({
-  //   userId: user._id,
-  //   username: user.username,
-  //   email: user.email,
-  //   role: user.role,
-  //   joined: user.createdAt,
-
   req.user = decoded;
 
-  console.log(req.user);
   console.log(decoded);
 
   next();
 };
 
-module.exports = authenticateRoute;
+const authorizeAdminAccess = (req, res, next) => {
+  const { role } = req.query;
+
+  if (role !== req.user.role) {
+    return res
+      .status(401)
+      .json({ message: "Not authorized to perform this action" });
+  }
+
+  console.log(`${(req.user.role, role, req.user.role && role)}`);
+  next();
+};
+
+module.exports = { authenticateRoute, authorizeAdminAcess };
