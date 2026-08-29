@@ -5,9 +5,8 @@ const cookieParser = require("cookie-parser");
 //modules
 const connectDB = require("./db.js");
 const authRoutes = require("./routes/authRoutes.js");
-const reportRoutes = require("./routes/reportRoutes.js");
-const workerReportRoute = require("./routes/workerReportRouter.js");
-const adminReportRoute = require("./routes/adminReportRoutes.js");
+const citizienReportRoutes = require("./routes/citizienReportRoutes.js");
+const adminReportRoutes = require("./routes/adminReportRoutes.js");
 
 //miudllewares
 const {
@@ -28,12 +27,12 @@ app.use(cors());
 
 //routes
 app.use("/api/v1/auth/", authRoutes);
-app.use("/api/v1/reports/", authenticateRoute, reportRoutes);
+app.use("/api/v1/reports/", authenticateRoute, citizienReportRoutes);
 app.use(
   "/api/v1/reports/authorize?role=admin",
   authenticateRoute,
   authorizeAdminAccess,
-  adminRoutes,
+  adminReportRoutes,
 );
 
 //app-variables

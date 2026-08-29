@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { fetchAllReports } = require("../controllers/adminReportHandler");
+const { fetchAllReports } = require("../controllers/adminReportHandler.js");
 
 //admin
 //get all reports
