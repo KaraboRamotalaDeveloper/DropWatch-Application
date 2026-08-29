@@ -99,17 +99,6 @@ const deleteReport = async (req, res) => {
   }
 };
 
-//admin
-//get all reports
-//get reports for worker : assignTo
-//update
-//...update: assignWorker
-//...update: updateStatus
-
-//worker
-//get worker reports : userId === assignedTo
-//update report status
-
 module.exports = {
   logReport,
   fetchCitizienReports,
