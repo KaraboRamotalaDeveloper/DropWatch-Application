@@ -11,7 +11,7 @@ const adminReportRoutes = require("./routes/adminReportRoutes.js");
 //miudllewares
 const {
   authenticateRoute,
-  authorizeAdminAccess,
+  authorizeAccess,
 } = require("./middlewares/authMiddleware.js");
 
 //run the env
@@ -29,9 +29,9 @@ app.use(cors());
 app.use("/api/v1/auth/", authRoutes);
 app.use("/api/v1/reports/", authenticateRoute, citizienReportRoutes);
 app.use(
-  "/api/v1/reports/authorize?role=admin",
+  "/api/v1/reports/authorize",
   authenticateRoute,
-  authorizeAdminAccess,
+  authorizeAccess,
   adminReportRoutes,
 );
 
