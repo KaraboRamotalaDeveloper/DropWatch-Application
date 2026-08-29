@@ -13,23 +13,18 @@ const authenticateRoute = (req, res, next) => {
   }
 
   req.user = decoded;
-
-  console.log(decoded);
-
   next();
 };
 
-const authorizeAdminAccess = (req, res, next) => {
+const authorizeAccess = (req, res, next) => {
   const { role } = req.query;
-
-  if (role !== req.user.role) {
+  if (role !== req.user.role.toLowerCase()) {
     return res
       .status(401)
       .json({ message: "Not authorized to perform this action" });
   }
 
-  console.log(`${(req.user.role, role, req.user.role && role)}`);
   next();
 };
 
-module.exports = { authenticateRoute, authorizeAdminAcess };
+module.exports = { authenticateRoute, authorizeAccess };
