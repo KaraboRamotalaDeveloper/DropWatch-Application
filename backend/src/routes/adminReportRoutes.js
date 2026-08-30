@@ -5,6 +5,7 @@ const {
   fetchAllReports,
   fetchReport,
   fetchAndFilterReports,
+  updateReportByAction,
 } = require("../controllers/adminReportHandlers.js");
 
 router.use((req, res, next) => {
@@ -15,6 +16,7 @@ router.use((req, res, next) => {
 //get reports
 router.get("/fetchallreports", fetchAllReports);
 router.get("/fetchreport/filtered", fetchAndFilterReports);
+router.post("/updatereport/:reportId/adminactions", updateReportByAction);
 router.get("/fetchreport/:reportId", fetchReport);
 //get reports for worker : assignTo
 //update
