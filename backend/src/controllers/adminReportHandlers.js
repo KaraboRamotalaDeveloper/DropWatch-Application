@@ -60,11 +60,19 @@ const updateReportByAction = async (req, res) => {
   try {
     const { reportId } = req.params;
     const actions = req.body;
+    const { userId } = req.user;
+
+    const updateData = { ...actions, updatedBy: userId };
 
     console.log(reportId);
     console.log(actions);
+    console.log(userId);
+    console.log(updateData);
 
-    const updatedReport = await Report.findByIdAndUpdate(reportId, actions);
+    const updatedReport = await Report.findByIdAndUpdate(reportId, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedReport || updateReport.length === 0) {
       return res.status(404).json({ message: "No report found." });
