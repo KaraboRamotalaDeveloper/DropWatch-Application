@@ -26,8 +26,8 @@ app.use(cookieParser());
 app.use(cors());
 
 //routes
-app.use("/api/v1/auth/", authRoutes);
 app.use("/api/v1/reports/", authenticateRoute, citizienReportRoutes);
+app.use("/api/v1/auth/", authRoutes);
 app.use(
   "/api/v1/reports/authorize",
   authenticateRoute,
