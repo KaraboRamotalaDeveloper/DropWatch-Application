@@ -14,13 +14,9 @@ router.use((req, res, next) => {
 });
 //admin
 //get reports
-router.get("/fetchallreports", fetchAllReports);
+router.get("/fetchreports", fetchAllReports);
 router.get("/fetchreport/filtered", fetchAndFilterReports);
-router.post("/updatereport/:reportId/adminactions", updateReportByAction);
+router.post("/updatereport/:reportId", updateReportByAction);
 router.get("/fetchreport/:reportId", fetchReport);
-//get reports for worker : assignTo
-//update
-//...update: assignWorker
-//...update: updateStatus
 
 module.exports = router;
