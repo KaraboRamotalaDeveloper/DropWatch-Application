@@ -7,6 +7,7 @@ const connectDB = require("./db.js");
 const authRoutes = require("./routes/authRoutes.js");
 const citizienReportRoutes = require("./routes/citizienReportRoutes.js");
 const adminReportRoutes = require("./routes/adminReportRoutes.js");
+const workerReportRoutes = require("./routes/workerReportRoutes.js");
 
 //miudllewares
 const {
@@ -32,11 +33,12 @@ app.use(cors());
 app.use("/api/v1/reports/", authenticateRoute, citizienReportRoutes);
 app.use("/api/v1/auth/", authRoutes);
 app.use(
-  "/api/v1/reports/authorize",
+  "/api/v1/worker",
   authenticateRoute,
   authorizeAccess,
-  adminReportRoutes,
+  workerReportRoutes,
 );
+app.use("/api/v1/admin", authenticateRoute, authorizeAccess, adminReportRoutes);
 
 //app-variables
 const PORT = process.env.PORT || 5000;
