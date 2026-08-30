@@ -18,6 +18,7 @@ const authenticateRoute = (req, res, next) => {
 
 const authorizeAccess = (req, res, next) => {
   const { role } = req.query;
+
   if (role !== req.user.role.toLowerCase()) {
     return res
       .status(401)

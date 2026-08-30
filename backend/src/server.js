@@ -20,6 +20,9 @@ require("dotenv").config();
 //instantiate the server app
 const app = express();
 connectDB();
+
+//app settings
+app.set("query parser", "extended");
 //middlewares
 app.use(express.json());
 app.use(cookieParser());
