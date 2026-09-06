@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const ReportLog = require("./ReportLog.js");
+
 const reportSchema = new mongoose.Schema(
   {
     name: {
@@ -32,10 +34,12 @@ const reportSchema = new mongoose.Schema(
     updatedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      default: null,
     },
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      default: null,
     },
     upVotesCount: {
       type: Number,
@@ -45,6 +49,10 @@ const reportSchema = new mongoose.Schema(
       type: String,
       enum: ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
       default: "MEDIUM",
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true },

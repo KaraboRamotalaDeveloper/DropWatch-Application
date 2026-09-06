@@ -8,11 +8,18 @@ const reportLogSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-    action: {
-      type: String,
-      enum: ["REPORTED", "CHANGE_STATUS", "CHANGE_ASSIGNED_TO"],
-      default: null,
-    },
+    action: [
+      {
+        type: String,
+        enum: [
+          "NEW_REPORT",
+          "CHANGE_STATUS",
+          "CHANGE_ASSIGNED_TO",
+          "DELETE_REPORT",
+        ],
+        default: null,
+      },
+    ],
     prevStatus: {
       type: String,
     },
@@ -33,6 +40,10 @@ const reportLogSchema = new mongoose.Schema(
     },
     note: {
       type: String,
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true },
