@@ -4,7 +4,7 @@ const ReportLog = require("./ReportLog.js");
 
 const reportSchema = new mongoose.Schema(
   {
-    name: {
+    title: {
       type: String,
       enum: ["BURST", "LEAKAGE", "WATER-SHEDDING"],
       default: "WATER-SHEDDING",
@@ -61,3 +61,42 @@ const reportSchema = new mongoose.Schema(
 const Report = mongoose.model("Report", reportSchema);
 
 module.exports = Report;
+
+/*
+REPORT
+6a9d93d5f63c9563d582a47b
+WORKER
+{
+  "_id": {
+    "$oid": "6a9d4b9f5c4ace07d0b1c341"
+  },
+  "username": "User12",
+  "email": "User12@gmail.com",
+  "password": "$2b$10$XQswvciVyDP2rfJWG.FaOu854UVATrcTZHZqLO1tqeOUVp0INArw2",
+  "role": "WORKER",
+  "createdAt": {
+    "$date": "2026-09-06T11:16:47.485Z"
+  },
+  "updatedAt": {
+    "$date": "2026-09-06T11:16:47.485Z"
+  },
+  "__v": 0
+}
+CITIZIEN
+{
+  "_id": {
+    "$oid": "6a9d4b8c5c4ace07d0b1c340"
+  },
+  "username": "User11",
+  "email": "User11@gmail.com",
+  "password": "$2b$10$iPKXFamcjV/My/FKyWatYeqzr6kA9oWKsRCXX6VfpibbcCR9HxrEC",
+  "role": "CITIZIEN",
+  "createdAt": {
+    "$date": "2026-09-06T11:16:28.839Z"
+  },
+  "updatedAt": {
+    "$date": "2026-09-06T11:16:28.839Z"
+  },
+  "__v": 0
+}
+*/
