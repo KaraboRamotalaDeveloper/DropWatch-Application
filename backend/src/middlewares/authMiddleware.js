@@ -1,7 +1,7 @@
 const { decodeToken } = require("../utils/util.js");
 require("dotenv").config();
 
-const authenticateRoute = (req, res, next) => {
+const authN = (req, res, next) => {
   const { token } = req.cookies;
 
   if (!token) return res.status(401).json({ message: "Invalid token" });
@@ -13,21 +13,27 @@ const authenticateRoute = (req, res, next) => {
   }
 
   req.user = decoded;
-  next();
-};
 
-const authorizeAccess = (req, res, next) => {
-  const { role } = req.query;
-  console.log("role query: " + role);
-  console.log("user role" + req.user.role);
-
-  if (role !== req.user.role.toLowerCase()) {
-    return res
-      .status(401)
-      .json({ message: "Not authorized to perform this action" });
-  }
+  console.log("Decoded user:", req.user);
 
   next();
 };
 
-module.exports = { authenticateRoute, authorizeAccess };
+const authZ = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user || !req.user.role) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+    const { role } = req.user;
+
+    if (!allowedRoles.includes(role)) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to perform this action" });
+    }
+
+    next();
+  };
+};
+
+module.exports = { authN, authZ };
