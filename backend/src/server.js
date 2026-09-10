@@ -4,16 +4,15 @@ const cookieParser = require("cookie-parser");
 
 //modules
 const connectDB = require("./db.js");
+//routes
 const authRoutes = require("./routes/authRoutes.js");
-const citizienReportRoutes = require("./routes/citizienReportRoutes.js");
-const adminReportRoutes = require("./routes/adminReportRoutes.js");
-const workerReportRoutes = require("./routes/workerReportRoutes.js");
+// const citizienReportRoutes = require("./routes/citizienReportRoutes.js");
+// const adminReportRoutes = require("./routes/adminReportRoutes.js");
+// const workerReportRoutes = require("./routes/workerReportRoutes.js");
 
-//miudllewares
-const {
-  authenticateRoute,
-  authorizeAccess,
-} = require("./middlewares/authMiddleware.js");
+const reportRoutes = require("./routes/reportRoutes.js");
+//middlewares
+const { authN, authZ } = require("./middlewares/authMiddleware.js");
 
 //run the env
 require("dotenv").config();
@@ -30,16 +29,17 @@ app.use(cookieParser());
 app.use(cors());
 
 //routes
-app.use("/api/v1/reports/", authenticateRoute, citizienReportRoutes);
-app.use("/api/v1/auth/", authRoutes);
-app.use(
-  "/api/v1/worker",
-  authenticateRoute,
-  authorizeAccess,
-  workerReportRoutes,
-);
-app.use("/api/v1/admin", authenticateRoute, authorizeAccess, adminReportRoutes);
+app.use("/api/v1/auth/", authRoutes); //login,register,logout
 
+// app.use("/api/v1/reports/", authN, citizienReportRoutes);
+// app.use("/api/v1/worker", authN, authZ, workerReportRoutes);
+// app.use("/api/v1/admin", authN, authZ, adminReportRoutes);
+app.use(
+  "/api/v1/reports/",
+  authN,
+  authZ("ADMIN", "WORKER", "CITIZIEN"),
+  reportRoutes,
+);
 //app-variables
 const PORT = process.env.PORT || 5000;
 
