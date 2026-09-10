@@ -16,13 +16,9 @@ const {
 // - create report
 router.post("/logreport", logReport);
 // - get all reports
-router.get("/fetchreports", fetchReports);
-router.get("/fetchreports/:reportId", fetchReportById);
 router.get("/fetchreports/filtered", fetchReportsByFilter);
-// - can get filtered reports
-// - can assign report - update
-// - can update status - update
-
+router.get("/fetchreports/:reportId", fetchReportById);
+router.get("/fetchreports", fetchReports);
 router.patch("/updatereport/:reportId", updateReport);
 router.delete("/delreport/:reportId", deleteReport);
 

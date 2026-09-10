@@ -6,8 +6,9 @@ const reportSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      enum: ["BURST", "LEAKAGE", "WATER-SHEDDING"],
-      default: "WATER-SHEDDING",
+      required: [true, "Title is required"],
+      maxlength: [100, "Title cannot exceed 100 characters"],
+      trim: true,
     },
     description: {
       type: String,

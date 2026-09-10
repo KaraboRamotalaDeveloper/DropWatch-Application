@@ -50,7 +50,7 @@ const fetchReports = async (req, res) => {
       filter.assignedTo = userId;
     } else if (normalizedRoles === "citizien") {
       filter.reportedBy = userId;
-    } else if (normalizdRoles !== "admin") {
+    } else if (normalizedRoles !== "admin") {
       return res
         .status(403)
         .json({ message: "Not authorized to perform action" });
@@ -81,45 +81,18 @@ const fetchReportsByFilter = async (req, res) => {
 
     const normalizedRole = role ? role.toLowerCase() : null;
 
-    const {
-      status,
-      priority,
-      isDeleted,
-      assignedTo,
-      reportedBy,
-      updatedBy,
-      createdAt,
-      updatedAt,
-    } = req.query;
-
-    if (
-      !status &&
-      !priority &&
-      !isDeleted &&
-      !assignedTo &&
-      !reportedBy &&
-      !updatedBy &&
-      !createdAt &&
-      !updatedAt
-    ) {
-      return res
-        .status(400)
-        .json({ message: "At least one filter is required" });
+    const { filter } = req.query;
+    if (filter.assignedTo === "null") {
+      filter.assignedTo = null;
+    }
+    if (filter.reportedBy === "null") {
+      filter.reportedBy = null;
+    }
+    if (filter.updatedBy === "null") {
+      filter.updatedBy = null;
     }
 
-    let filter = {};
-
-    if (status) filter.status = status;
-    if (priority) filter.priority = priority;
-    if (isDeleted !== undefined) filter.isDeleted = isDeleted;
-    if (assignedTo) filter.assignedTo = assignedTo;
-    if (reportedBy) filter.reportedBy = reportedBy;
-    if (updatedBy) filter.updatedBy = updatedBy;
-    if (createdAt) filter.createdAt = createdAt;
-    if (updatedAt) filter.updatedAt = updatedAt;
-
     let reports;
-
     switch (normalizedRole) {
       case "admin":
         reports = await Report.find(filter);
@@ -145,7 +118,7 @@ const fetchReportsByFilter = async (req, res) => {
       reports,
     });
   } catch (err) {
-    console.log(err.message);
+    console.log("error: " + err.message);
     return res.status(500).json({
       message: "Internal Server Error",
     });
@@ -156,6 +129,8 @@ const fetchReportById = async (req, res) => {
   try {
     const { reportId } = req.params;
     const { userId, role } = req.user;
+
+    console.log("reportId:" + reportId);
 
     const normalizedRole = role ? role.toLowerCase() : "";
 
@@ -198,37 +173,33 @@ const updateReport = async (req, res) => {
 
     const normalizedRole = role ? role.toLowerCase() : null;
 
-    const {
-      title,
-      description,
-      photoUrl,
-      address,
-      status,
-      assignedTo,
-      priority,
-      isDeleted,
-    } = req.body;
-
     let actions = {};
 
     if (normalizedRole === "citizien") {
-      if (title) actions.title = title;
-      if (description) actions.description = description;
-      if (photoUrl) actions.photoUrl = photoUrl;
-      if (address) actions.address = address;
-      if (isDeleted !== undefined) actions.isDeleted = isDeleted;
+      if (req.body.title) actions.title = req.body.title;
+      if (req.body.description) actions.description = req.body.description;
+      if (req.body.photoUrl) actions.photoUrl = req.body.photoUrl;
+      if (req.body.address) actions.address = req.body.address;
+      if (req.body.isDeleted !== undefined)
+        actions.isDeleted = req.body.isDeleted;
     } else if (normalizedRole === "worker") {
-      if (status) actions.status = status;
-      if (priority) actions.priority = priority;
+      if (req.body.status) actions.status = req.body.status;
+      if (req.body.priority) actions.priority = req.body.priority;
     } else if (normalizedRole === "admin") {
-      if (assignedTo) actions.assignedTo = assignedTo;
-      if (status) actions.status = status;
-      if (priority) actions.priority = priority;
-      if (isDeleted !== undefined) actions.isDeleted = isDeleted;
+      if (req.body.assignedTo) actions.assignedTo = req.body.assignedTo;
+      if (req.body.status) actions.status = req.body.status;
+      if (req.body.priority) actions.priority = req.body.priority;
+      if (req.body.isDeleted !== undefined)
+        actions.isDeleted = req.body.isDeleted;
     }
 
+    console.log(actions);
+
     if (Object.keys(actions).length === 0) {
-      return res.status(400).json({ message: "No update actions provided" });
+      return res.status(400).json({
+        message:
+          "No update actions provided or not authorized to perform this action",
+      });
     }
 
     const report = await Report.findById(reportId);
@@ -276,7 +247,7 @@ const updateReport = async (req, res) => {
           });
         }
 
-        if (userId === report.reportedBy?.toString()) {
+        if (userId !== report.reportedBy?.toString()) {
           return res
             .status(403)
             .json({ message: "Not authorized to perform this action" });
