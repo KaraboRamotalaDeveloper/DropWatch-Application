@@ -7,8 +7,13 @@ const logReport = async (req, res) => {
   try {
     const { userId } = req.user;
 
-    const { title, description, photoUrl, address } = req.body;
+    const { title, description, address } = req.body;
+    if (!req.file) {
+      return res.status(400).json({ message: "An image file is required" });
+    }
 
+    // req.file.path contains the public Cloudinary URL
+    const photoUrl = req.file?.path;
     if (!title || !description || !photoUrl || !address) {
       return res.status(400).json({ message: "All fields are required" });
     }

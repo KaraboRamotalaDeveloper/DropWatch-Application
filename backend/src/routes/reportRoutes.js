@@ -2,6 +2,8 @@ const express = require("express");
 
 const router = express.Router();
 
+//middlewares
+const upload = require("../middlewares/upload.js");
 //controllers
 const {
   fetchReports,
@@ -14,7 +16,7 @@ const {
 
 //admin\
 // - create report
-router.post("/logreport", logReport);
+router.post("/logreport", upload.single("photo"), logReport);
 // - get all reports
 router.get("/fetchreports/filtered", fetchReportsByFilter);
 router.get("/fetchreports/:reportId", fetchReportById);

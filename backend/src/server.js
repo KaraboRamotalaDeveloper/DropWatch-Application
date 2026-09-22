@@ -6,13 +6,9 @@ const cookieParser = require("cookie-parser");
 const connectDB = require("./db.js");
 //routes
 const authRoutes = require("./routes/authRoutes.js");
-// const citizienReportRoutes = require("./routes/citizienReportRoutes.js");
-// const adminReportRoutes = require("./routes/adminReportRoutes.js");
-// const workerReportRoutes = require("./routes/workerReportRoutes.js");
-
 const reportRoutes = require("./routes/reportRoutes.js");
 //middlewares
-const { authN, authZ } = require("./middlewares/authMiddleware.js");
+const { authN, authZ } = require("./middlewares/auth.js");
 
 //run the env
 require("dotenv").config();
@@ -37,10 +33,6 @@ app.use(
 
 //routes
 app.use("/api/v1/auth/", authRoutes); //login,register,logout
-
-// app.use("/api/v1/reports/", authN, citizienReportRoutes);
-// app.use("/api/v1/worker", authN, authZ, workerReportRoutes);
-// app.use("/api/v1/admin", authN, authZ, adminReportRoutes);
 app.use(
   "/api/v1/reports/",
   authN,
