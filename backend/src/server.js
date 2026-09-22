@@ -26,7 +26,14 @@ app.set("query parser", "extended");
 //middlewares
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Exact frontend URL (no trailing slash)
+    credentials: true, // Allows cookies/headers to pass
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
 //routes
 app.use("/api/v1/auth/", authRoutes); //login,register,logout
