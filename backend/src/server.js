@@ -52,13 +52,6 @@ app.use((err, req, res, next) => {
     return res.status(400).json({ error: err.message });
   }
 
-  console.error("===== REPORT ERROR =====");
-  console.error("Message:", err.message);
-  console.error("Name:", err.name);
-  console.error("Stack:", err.stack);
-  console.error("Full error:", err);
-  console.error("========================");
-
   next();
 });
 
