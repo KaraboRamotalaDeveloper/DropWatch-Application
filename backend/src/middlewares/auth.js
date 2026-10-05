@@ -21,6 +21,7 @@ const authN = (req, res, next) => {
 
 const authZ = (...allowedRoles) => {
   return (req, res, next) => {
+    console.log(req.user);
     if (!req.user || !req.user.role) {
       return res.status(401).json({ message: "Authentication required" });
     }

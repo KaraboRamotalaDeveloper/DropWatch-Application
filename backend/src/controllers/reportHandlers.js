@@ -1,44 +1,97 @@
 //models
 const User = require("../models/User.js");
 const Report = require("../models/Report.js");
+require("dotenv").config();
+
+const supabase = require("../configs/supabase.js");
 
 ///create report
 const logReport = async (req, res) => {
+  console.log("In logReport handler");
+  console.log(
+    supabase
+      ? "Supabase client is initialized"
+      : "Supabase client is NOT initialized",
+  );
   try {
-    const { userId } = req.user;
+    const userId = req.user?.userId;
 
-    const { title, description, address } = req.body;
-    if (!req.file) {
-      return res.status(400).json({ message: "An image file is required" });
-    }
-
-    // req.file.path contains the public Cloudinary URL
-    const photoUrl = req.file?.path;
-    if (!title || !description || !photoUrl || !address) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    if (userId.toString() !== "" || userId !== null || userId !== undefined) {
-      const report = new Report({
-        title,
-        description,
-        photoUrl,
-        address,
-        reportedBy: userId,
-      });
-
-      await report.save();
-
-      return res
-        .status(201)
-        .json({ message: "Report logged successsfully", report });
-    } else {
-      return res.status(403).json({
+    // 1. Verify user authentication first
+    if (!userId) {
+      return res.status(401).json({
         message: "User is not authorized or authenticated to log a report",
       });
     }
+
+    // 2. Validate file presence
+    if (!req.file) {
+      return res.status(400).json({ message: "An image file is required" });
+    }
+    const fileExt = req.file.originalname.split(".").pop();
+
+    const fileName = `${Date.now()}-${Math.random()
+      .toString(36)
+      .substring(2)}.${fileExt}`;
+
+    const filePath = `uploads/${fileName}`;
+
+    console.log("File extension:", fileExt); // Debugging line to check the file extension
+    console.log("Generated file name:", fileName); // Debugging line to check the generated file name
+    console.log("Generated file path:", filePath); // Debugging line to check the generated file path
+
+    console.log("supabase =", supabase);
+    console.log("supabase.storage =", supabase?.storage);
+    console.log("supabase.storage.from =", supabase?.storage?.from);
+
+    const { data, error } = await supabase.storage
+      .from("images")
+      .upload(filePath, req.file.buffer, {
+        contentType: req.file.mimetype,
+        upsert: false,
+      });
+    if (error) {
+      console.error("Supabase upload error:", error);
+
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from("images")
+      .getPublicUrl(filePath);
+
+    const photoUrl = data.path; // Multer-Cloudinary populates this URL
+    console.log(req.body);
+    const { title, description, address } = req.body;
+
+    // 3. Validate required text fields
+    if (!title || !description || !address) {
+      // Optional cleanup: Delete from Cloudinary here if using cloudinary SDK
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    console.log("req.body:", req.body); // Debugging line to check the request body
+    // 4. Create and save report
+    const report = new Report({
+      title,
+      description,
+      photoUrl,
+      address,
+      reportedBy: userId,
+    });
+
+    await report.save();
+
+    return res.status(201).json({
+      message: "Report logged successfully",
+      report,
+      url: publicUrlData.publicUrl,
+      path: data.path,
+    });
   } catch (err) {
-    console.log(err.message);
+    console.error("Error logging report:", err.message);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -61,16 +114,35 @@ const fetchReports = async (req, res) => {
         .json({ message: "Not authorized to perform action" });
     }
 
-    const reports = await Report.find(filter);
-
+    const reports = await Report.find(filter).populate(
+      "assignedTo",
+      "username email",
+    );
+    console.log("Fetched reports before generatedUrls:", reports); // Debugging line to check the fetched reports
     if (!reports || reports.length === 0) {
       return res.status(404).json({ message: "No reports found" });
     }
+    const DEFAULT_IMAGE_URL =
+      "https://images.unsplash.com/photo-1594322436404-5a0526db4d13?w=800&auto=format&fit=crop&q=60";
 
+    const reportsWithUrls = reports.map((report) => {
+      console.log("Processing report:", report); // Debugging line to check each report before generating URL
+      const { data } = supabase.storage
+        .from("images")
+        .getPublicUrl(report.photoUrl);
+      console.log("Generated public URL for report:", data?.publicUrl); // Debugging line to check the generated public URL
+      // If Supabase gives us a URL, use it
+      if (data?.publicUrl) {
+        report.photoUrl = data.publicUrl;
+      }
+
+      return report;
+    });
+    console.log("Reports with generated URLs:", reportsWithUrls); // Debugging line to check the final reports array
     return res.status(200).json({
       message: "Successfully found the reports",
-      numReports: reports.length,
-      reports,
+      numReports: reportsWithUrls.length,
+      reports: reportsWithUrls,
     });
   } catch (err) {
     console.log(err.message);
@@ -185,6 +257,7 @@ const updateReport = async (req, res) => {
       if (req.body.description) actions.description = req.body.description;
       if (req.body.photoUrl) actions.photoUrl = req.body.photoUrl;
       if (req.body.address) actions.address = req.body.address;
+      if (req.body.upVotes) actions.upVotes = req.body.upVotes;
       if (req.body.isDeleted !== undefined)
         actions.isDeleted = req.body.isDeleted;
     } else if (normalizedRole === "worker") {
@@ -227,6 +300,13 @@ const updateReport = async (req, res) => {
 
           console.log("Worker found:", worker);
           report.assignedTo = actions.assignedTo || report.assignedTo;
+          console.log("status before assignment:", report.status);
+          console.log("actions.status before updating:", actions.status);
+          if (report.status === "REPORTED") {
+            report.status = "ASSIGNED";
+          }
+          report.status = actions.status || report.status;
+          console.log("status after assignment:", report.status);
         }
         if (actions.status) report.status = actions.status || report.status;
         if (actions.priority)
@@ -264,13 +344,16 @@ const updateReport = async (req, res) => {
         if (actions.description)
           report.description = actions.description || report.description;
         if (actions.address) report.address = actions.address || report.address;
-
+        if (actions.upVotes) report.upVotes = actions.upVotes || report.upVotes;
+        if (actions.isDeleted !== undefined)
+          report.isDeleted = actions.isDeleted || report.isDeleted;
         break;
       default:
         break;
     }
 
     report.updatedBy = userId;
+    console.log("Report after applying updates but before save:", report);
     await report.save();
 
     console.log("Report after update:", report);
