@@ -26,7 +26,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:5173", // Exact frontend URL (no trailing slash)
+    origin: [ process.env.FRONTEND_URL,"http://localhost:5173"], // Exact frontend URL (no trailing slash)
     credentials: true, // Allows cookies/headers to pass
     methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
