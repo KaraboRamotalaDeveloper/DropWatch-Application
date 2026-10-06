@@ -10,11 +10,13 @@ export default function Layout() {
   const normalizedRole = user?.role?.toUpperCase() || "CITIZEN";
 
   return (
-    <div style={styles.appLayout}>
+    <div style={styles.appLayout} className="app-layout">
       <Sidebar role={normalizedRole} />
-      <div style={styles.mainContainer}>
+
+      <div style={styles.mainContainer} className="main-container">
         <Header user={user} role={normalizedRole} onLogout={logoutUser} />
-        <main style={styles.contentArea}>
+
+        <main style={styles.contentArea} className="content-area">
           <Outlet context={{ user, role: normalizedRole }} />
         </main>
       </div>
