@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState } from "react";
 import api from "../api/axios";
 
 const AuthContext = createContext();
@@ -6,35 +6,22 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("user");
+
     return savedUser ? JSON.parse(savedUser) : null;
   });
+
   const [loading, setLoading] = useState(false);
-  const [initialCheckDone, setInitialCheckDone] = useState(false);
-
-  // Verify stored session with backend on initial load
-  useEffect(() => {
-    const checkAuthStatus = async () => {
-      try {
-        const response = await api.get("/auth/me");
-        setUser(response.data);
-        localStorage.setItem("user", JSON.stringify(response.data));
-      } catch (err) {
-        // Token is missing or invalid
-        setUser(null);
-        localStorage.removeItem("user");
-      } finally {
-        setInitialCheckDone(true);
-      }
-    };
-
-    checkAuthStatus();
-  }, []);
 
   const registerUser = async (formData) => {
     setLoading(true);
+
     try {
       const response = await api.post("/auth/register", formData);
-      return { success: true, data: response.data };
+
+      return {
+        success: true,
+        data: response.data,
+      };
     } catch (err) {
       return {
         success: false,
@@ -47,12 +34,18 @@ export const AuthProvider = ({ children }) => {
 
   const loginUser = async (credentials) => {
     setLoading(true);
+
     try {
       const response = await api.post("/auth/login", credentials);
+
       const userData = response.data;
+
       setUser(userData);
       localStorage.setItem("user", JSON.stringify(userData));
-      return { success: true };
+
+      return {
+        success: true,
+      };
     } catch (err) {
       return {
         success: false,
@@ -65,10 +58,11 @@ export const AuthProvider = ({ children }) => {
 
   const logoutUser = async () => {
     setLoading(true);
+
     try {
       await api.post("/auth/logout");
     } catch (err) {
-      console.error("Logout error", err);
+      console.error("Logout error:", err);
     } finally {
       setUser(null);
       localStorage.removeItem("user");
@@ -76,14 +70,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Prevent routing decisions before initial session check completes
-  if (!initialCheckDone) {
-    return <div>Loading authentication...</div>;
-  }
-
   return (
     <AuthContext.Provider
-      value={{ user, loading, loginUser, registerUser, logoutUser }}
+      value={{
+        user,
+        loading,
+        loginUser,
+        registerUser,
+        logoutUser,
+      }}
     >
       {children}
     </AuthContext.Provider>
