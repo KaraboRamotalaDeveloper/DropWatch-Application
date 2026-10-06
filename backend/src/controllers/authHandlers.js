@@ -48,6 +48,7 @@ const login = async (req, res) => {
       });
 
       if (token) {
+        console.log("NODE_ENV:", process.env.NODE_ENV);
         res.cookie("token", token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
@@ -66,15 +67,16 @@ const login = async (req, res) => {
       return res.status(403).json({ message: "Invalid credentials" });
     }
   } catch (err) {
-    return res
-      .status(500)
-      .json(`{ message: "Internal server error" , error:${err}}`);
+    return res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
   }
 };
 
 const logout = async (req, res) => {
   res.cookie("token", "", {
-    htttpOnly: true,
+    httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
     expires: new Date(0),
