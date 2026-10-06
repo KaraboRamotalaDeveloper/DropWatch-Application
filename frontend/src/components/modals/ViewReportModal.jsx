@@ -1,5 +1,6 @@
 import React from "react";
-import { X, MapPin, Calendar, User, ThumbsUp } from "lucide-react";
+import { X, MapPin, Calendar, User } from "lucide-react";
+
 import {
   styles,
   getStatusStyle,
@@ -8,9 +9,9 @@ import {
 
 export default function ViewReportModal({ isOpen, report, onClose, onUpvote }) {
   console.log(report);
+
   if (!isOpen || !report) return null;
 
-  // Format date cleanly
   const formattedDate = report.createdAt
     ? new Date(report.createdAt).toLocaleDateString("en-US", {
         year: "numeric",
@@ -22,14 +23,22 @@ export default function ViewReportModal({ isOpen, report, onClose, onUpvote }) {
     : "N/A";
 
   return (
-    <div style={styles.modalOverlay} onClick={onClose}>
-      {/* e.stopPropagation prevents clicking inside the modal from closing it */}
+    <div
+      style={styles.modalOverlay}
+      className="modal-overlay view-report-overlay"
+      onClick={onClose}
+    >
       <div
-        style={{ ...styles.modal, maxWidth: "560px", width: "90%" }}
+        style={{
+          ...styles.modal,
+          maxWidth: "560px",
+          width: "90%",
+        }}
+        className="modal view-report-modal"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header with Close Icon */}
         <div
+          className="view-report-header"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -37,11 +46,19 @@ export default function ViewReportModal({ isOpen, report, onClose, onUpvote }) {
             marginBottom: "16px",
             borderBottom: "1px solid #e5e7eb",
             paddingBottom: "12px",
+            gap: "12px",
           }}
         >
-          <h3 style={{ margin: 0, fontSize: "20px", color: "#111827" }}>
+          <h3
+            style={{
+              margin: 0,
+              fontSize: "20px",
+              color: "#111827",
+            }}
+          >
             Incident Details
           </h3>
+
           <button
             onClick={onClose}
             style={{
@@ -51,20 +68,25 @@ export default function ViewReportModal({ isOpen, report, onClose, onUpvote }) {
               color: "#6b7280",
               display: "flex",
               alignItems: "center",
+              flexShrink: 0,
             }}
           >
             <X size={20} />
           </button>
         </div>
 
-        {/* 1. Cloudinary Image Preview (with fallback) */}
-        <div style={{ marginBottom: "16px", textAlign: "center" }}>
+        <div
+          className="report-image-container"
+          style={{
+            marginBottom: "16px",
+            textAlign: "center",
+          }}
+        >
           {report.photoUrl ? (
             <img
               src={report.photoUrl}
               alt={report.title}
               onError={(e) => {
-                // Fallback if image fails to load or link is broken
                 e.target.onerror = null;
                 e.target.src =
                   report.photoUrl ||
@@ -72,7 +94,7 @@ export default function ViewReportModal({ isOpen, report, onClose, onUpvote }) {
               }}
               style={{
                 width: "100%",
-                maxHeight: "100px",
+                maxHeight: "180px",
                 objectFit: "cover",
                 borderRadius: "8px",
                 border: "1px solid #e5e7eb",
@@ -96,34 +118,37 @@ export default function ViewReportModal({ isOpen, report, onClose, onUpvote }) {
           )}
         </div>
 
-        {/* 2. Title & Location */}
         <div style={{ marginBottom: "14px" }}>
           <h4
             style={{
               margin: "0 0 6px 0",
               fontSize: "18px",
               color: "#1f2937",
+              overflowWrap: "anywhere",
             }}
           >
             {report.title}
           </h4>
+
           <p
             style={{
               margin: 0,
               color: "#4b5563",
               fontSize: "14px",
               display: "flex",
-              alignItems: "center",
+              alignItems: "flex-start",
               gap: "6px",
+              overflowWrap: "anywhere",
             }}
           >
-            <MapPin size={16} color="#6b7280" />
+            <MapPin size={16} color="#6b7280" style={{ flexShrink: 0 }} />
+
             {report.address || "No address provided"}
           </p>
         </div>
 
-        {/* 3. Badges Section (Status, Priority, Assigned Worker) */}
         <div
+          className="report-meta-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
@@ -136,21 +161,43 @@ export default function ViewReportModal({ isOpen, report, onClose, onUpvote }) {
           }}
         >
           <div>
-            <div style={{ fontSize: "12px", color: "#6b7280" }}>Status</div>
+            <div
+              style={{
+                fontSize: "12px",
+                color: "#6b7280",
+              }}
+            >
+              Status
+            </div>
+
             <span style={getStatusStyle(report.status)}>{report.status}</span>
           </div>
 
           <div>
-            <div style={{ fontSize: "12px", color: "#6b7280" }}>Priority</div>
+            <div
+              style={{
+                fontSize: "12px",
+                color: "#6b7280",
+              }}
+            >
+              Priority
+            </div>
+
             <span style={getPriorityStyle(report.priority)}>
               {report.priority}
             </span>
           </div>
 
           <div>
-            <div style={{ fontSize: "12px", color: "#6b7280" }}>
+            <div
+              style={{
+                fontSize: "12px",
+                color: "#6b7280",
+              }}
+            >
               Assigned To
             </div>
+
             <strong
               style={{
                 fontSize: "13px",
@@ -159,15 +206,16 @@ export default function ViewReportModal({ isOpen, report, onClose, onUpvote }) {
                 alignItems: "center",
                 gap: "4px",
                 marginTop: "4px",
+                overflowWrap: "anywhere",
               }}
             >
               <User size={14} color="#6b7280" />
+
               {report.assignedTo?.username || report.assignedTo || "Unassigned"}
             </strong>
           </div>
         </div>
 
-        {/* 4. Full Description */}
         <div style={{ marginBottom: "16px" }}>
           <strong
             style={{
@@ -179,6 +227,7 @@ export default function ViewReportModal({ isOpen, report, onClose, onUpvote }) {
           >
             Description
           </strong>
+
           <p
             style={{
               margin: 0,
@@ -189,14 +238,15 @@ export default function ViewReportModal({ isOpen, report, onClose, onUpvote }) {
               color: "#1f2937",
               whiteSpace: "pre-wrap",
               lineHeight: "1.5",
+              overflowWrap: "anywhere",
             }}
           >
             {report.description || "No description provided."}
           </p>
         </div>
 
-        {/* 5. Footer Metadata (Upvotes & Date) */}
         <div
+          className="view-report-footer"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -204,22 +254,38 @@ export default function ViewReportModal({ isOpen, report, onClose, onUpvote }) {
             marginTop: "20px",
             paddingTop: "12px",
             borderTop: "1px solid #e5e7eb",
+            gap: "12px",
           }}
         >
           <div
+            className="reported-date"
             style={{
               display: "flex",
               alignItems: "center",
               gap: "6px",
               fontSize: "13px",
               color: "#6b7280",
+              minWidth: 0,
             }}
           >
-            <Calendar size={14} />
-            <span>Reported on: {formattedDate}</span>
+            <Calendar size={14} style={{ flexShrink: 0 }} />
+
+            <span
+              style={{
+                overflowWrap: "anywhere",
+              }}
+            >
+              Reported on: {formattedDate}
+            </span>
           </div>
 
-          <div style={{ display: "flex", gap: "10px" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "10px",
+              flexShrink: 0,
+            }}
+          >
             <button type="button" onClick={onClose} style={styles.primaryBtn}>
               Close
             </button>

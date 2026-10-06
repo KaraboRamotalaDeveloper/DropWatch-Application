@@ -13,14 +13,15 @@ export default function RoleActionModal({
   if (!selectedReport || !actionType) return null;
 
   return (
-    <div style={styles.modalOverlay}>
-      <div style={styles.modal}>
+    <div style={styles.modalOverlay} className="modal-overlay">
+      <div style={styles.modal} className="modal">
         <h3>
           {actionType === "ASSIGN" && "Assign Field Worker"}
           {actionType === "UPDATE_STATUS" && "Update Issue Status"}
           {actionType === "EDIT" && "Edit Report Details"}
         </h3>
-        <form onSubmit={onSubmit} style={styles.form}>
+
+        <form onSubmit={onSubmit} style={styles.form} className="modal-form">
           {actionType === "ASSIGN" && (
             <select
               value={formData.assignedTo}
@@ -28,13 +29,14 @@ export default function RoleActionModal({
                 setFormData({
                   ...formData,
                   assignedTo: e.target.value,
-                  status: "ASSIGNED", // Automatically set status to ASSIGNED when assigning a worker
+                  status: "ASSIGNED",
                 });
               }}
               style={styles.input}
               required
             >
               <option value="">-- Select Worker --</option>
+
               {workers
                 .filter((w) => w.role?.toUpperCase() === "WORKER")
                 .map((w) => (
@@ -47,9 +49,15 @@ export default function RoleActionModal({
 
           {actionType === "UPDATE_STATUS" && (
             <>
-              <label style={{ fontSize: "12px", color: "#374151" }}>
+              <label
+                style={{
+                  fontSize: "12px",
+                  color: "#374151",
+                }}
+              >
                 Status
               </label>
+
               <select
                 value={formData.status}
                 onChange={(e) => {
@@ -58,7 +66,10 @@ export default function RoleActionModal({
                       `Please assign a worker before setting status to ${e.target.value}`,
                     );
                   } else {
-                    setFormData({ ...formData, status: e.target.value });
+                    setFormData({
+                      ...formData,
+                      status: e.target.value,
+                    });
                   }
                 }}
                 style={styles.input}
@@ -69,13 +80,22 @@ export default function RoleActionModal({
                 <option value="FIXED">FIXED</option>
               </select>
 
-              <label style={{ fontSize: "12px", color: "#374151" }}>
+              <label
+                style={{
+                  fontSize: "12px",
+                  color: "#374151",
+                }}
+              >
                 Priority
               </label>
+
               <select
                 value={formData.priority}
                 onChange={(e) =>
-                  setFormData({ ...formData, priority: e.target.value })
+                  setFormData({
+                    ...formData,
+                    priority: e.target.value,
+                  })
                 }
                 style={styles.input}
               >
@@ -92,38 +112,58 @@ export default function RoleActionModal({
               <input
                 value={formData.title}
                 onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
+                  setFormData({
+                    ...formData,
+                    title: e.target.value,
+                  })
                 }
                 style={styles.input}
               />
+
               <input
                 value={formData.address}
                 onChange={(e) =>
-                  setFormData({ ...formData, address: e.target.value })
+                  setFormData({
+                    ...formData,
+                    address: e.target.value,
+                  })
                 }
                 style={styles.input}
               />
+
               <input
                 value={formData.photoUrl}
                 onChange={(e) =>
-                  setFormData({ ...formData, photoUrl: e.target.value })
+                  setFormData({
+                    ...formData,
+                    photoUrl: e.target.value,
+                  })
                 }
                 style={styles.input}
               />
+
               <textarea
                 value={formData.description}
                 onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
+                  setFormData({
+                    ...formData,
+                    description: e.target.value,
+                  })
                 }
-                style={{ ...styles.input, minHeight: "80px" }}
+                style={{
+                  ...styles.input,
+                  minHeight: "80px",
+                  resize: "vertical",
+                }}
               />
             </>
           )}
 
-          <div style={styles.modalActions}>
+          <div style={styles.modalActions} className="modal-actions">
             <button type="button" onClick={onClose} style={styles.secondaryBtn}>
               Cancel
             </button>
+
             <button type="submit" style={styles.primaryBtn}>
               Save Changes
             </button>
